@@ -7,26 +7,25 @@ class InMemoryDBServer {
 
     constructor(db: InMemoryDB) {
         this.db = db;
-        this.server = net.createServer();
-        this.socketCommunication();
-        this.handleErrors(); 
+        this.server = net.createServer((socket: net.Socket) => {
+            this.socketCommunication(socket);
+            this.handleErrors(socket);
+        });
     }
 
     start(port: number) {
         this.server.listen(port, () => { console.log(`In-Memory DB running on inmemory://localhost:${port}`) });
     }
 
-    socketCommunication() {
-        this.server.on("data", (data) => {
+    socketCommunication(socket: net.Socket) {
+        socket.on("data", (data) => {
             const message = data.toString().trim();
             console.log(message);
         });
     }
 
-    handleErrors() {
-        this.server.on("error", (err) => {
-            console.error(err);
-        });
+    handleErrors(socket: net.Socket) {
+        socket.on("error", () => {});
     }
 }
 
