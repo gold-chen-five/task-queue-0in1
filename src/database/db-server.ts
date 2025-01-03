@@ -5,14 +5,13 @@ class InMemoryDBServer {
     private server: net.Server;
     private db: InMemoryDB;
 
-    constructor() {
-        this.db = new InMemoryDB();
-        this.server = net.createServer(this.socketCommunication);
-        
+    constructor(db: InMemoryDB) {
+        this.db = db;
+        this.server = net.createServer(this.socketCommunication);   
     }
 
     start(port: number) {
-        this.server.listen(port, () => { console.log(`In-Memory DB start at port ${port}`) });
+        this.server.listen(port, () => { console.log(`In-Memory DB running on inmemory://localhost:${port}`) });
     }
 
     socketCommunication(socket: net.Socket) {
