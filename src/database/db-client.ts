@@ -1,8 +1,14 @@
 import net from "net"
 import { URL } from "url";
+import { IProtocol, TResponse } from "./protocol.type";
 
 class InMemoryDBClient {
     private client: net.Socket | undefined = undefined;
+    private protocol: IProtocol;
+
+    constructor(protocol: IProtocol){
+        this.protocol = protocol;
+    } 
 
     parseUrl(url: string) {
         const purl = new URL(url);
@@ -18,22 +24,49 @@ class InMemoryDBClient {
             console.log(`connected to in-memory db at inmemory://${host}:${port}`);
         });
 
-        this.client.on("end", () => {
-            console.log("disconnected from in-memory db");
-        });
+        this.client.on("end", () => { console.log("disconnected from in-memory db"); });
     }
 
-    send(message: string) {
-        if (!this.client) {
-            throw new Error("Not connected to any server");
-        }
-        this.client.write(message);
+    send(message: Buffer): Promise<TResponse> {
+        return new Promise((resolve, reject) => {
+            if(!this.client) {
+                return reject(new Error("Not connected to any server"));
+            }
+
+            const isSuccess = this.client.write(message);
+            if (!isSuccess){
+                return reject(new Error('Failed to write message to server'));
+            }
+
+            const timeout = setTimeout(() => { 
+                return reject(new Error("message time out"));
+            }, 5000);
+
+            this.client.once("data", (data) => {
+                clearTimeout(timeout);
+                const response = this.protocol.decodeResponse(data);
+                resolve(response);
+            });
+        });
+        
     }
 
     close() {
         if (this.client) {
             this.client.end();
         }
+    }
+
+    async get(key: string) {
+        const buffer = this.protocol.encodeGet(key);
+        const response = await this.send(buffer);
+        return response;
+    }
+
+    async set(key: string, value: any) {
+        const buffer = this.protocol.encodeSet(key, value);
+        const response = await this.send(buffer);
+        return response;
     }
 }
 
