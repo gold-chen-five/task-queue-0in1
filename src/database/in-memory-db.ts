@@ -1,7 +1,7 @@
 class InMemoryDB {
   private db: Record<string, any> = {};
 
-  set(key: string, value: string): void {
+  set(key: string, value: Buffer): void {
     this.db[key] = value;
   }
 
@@ -12,6 +12,21 @@ class InMemoryDB {
   delete(key: string): void {
     delete this.db[key];
   }
+
+  listPushBack(key: string, value: Buffer[]): void {
+    if(!this.get(key)) this.db[key] = [];
+    
+    value.forEach(buffer => {
+      (this.db[key] as Buffer[]).push(buffer);
+    })
+  }
+  
+  listPushFront(key: string, value: Buffer[]): void {
+    if(!this.get(key)) this.db[key] = [];
+    
+    (this.db[key] as Buffer[]).unshift(...value);
+  }
+
 }
 
 

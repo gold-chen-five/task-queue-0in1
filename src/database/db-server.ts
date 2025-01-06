@@ -39,12 +39,15 @@ class InMemoryDBServer {
                 case EMethod.DELETE:
                     this.handleDelete(socket, message);
                     break;
+                case EMethod.LIST_PUSH_BACK:
+                    this.handleListPushBack(socket, message);
+                    break;
             }
         });
     }
 
     handleSet(socket: net.Socket, buffer: Buffer) {
-        const {key, value} = this.protocol.decodeSet(buffer);
+        const { key, value } = this.protocol.decodeSet(buffer);
         this.db.set(key, value);
         const response = this.protocol.encodeResponse(ProtocolCode.OK, "Set success");
         socket.write(response);
@@ -53,7 +56,8 @@ class InMemoryDBServer {
     handleGet(socket: net.Socket, buffer: Buffer) {
         const key = this.protocol.decodeGet(buffer);
         const value = this.db.get(key);
-        const response = this.protocol.encodeResponse(ProtocolCode.OK, value);
+        console.log(value);
+        const response = this.protocol.encodeResponse(ProtocolCode.OK, "Get success", value);
         socket.write(response);
     }
 
@@ -61,6 +65,13 @@ class InMemoryDBServer {
         const key = this.protocol.decodeDelete(buffer);
         this.db.delete(key);
         const response = this.protocol.encodeResponse(ProtocolCode.OK, "Delete success");
+        socket.write(response);
+    }
+
+    handleListPushBack(socket: net.Socket, buffer: Buffer){
+        const { key, value } = this.protocol.decodeLPushBack(buffer);
+        this.db.listPushBack(key, value);
+        const response = this.protocol.encodeResponse(ProtocolCode.OK, "List push back success");
         socket.write(response);
     }
 

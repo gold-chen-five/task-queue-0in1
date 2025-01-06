@@ -18,13 +18,16 @@ class InMemoryDBClient {
         return { host: purl.hostname, port: parseInt(purl.port) };
     }
 
-    connect(url: string) {
-        const { host, port } = this.parseUrl(url);
-        this.client = net.createConnection(port, host, () => {
-            console.log(`connected to in-memory db at inmemory://${host}:${port}`);
-        });
-
-        this.client.on("end", () => { console.log("disconnected from in-memory db"); });
+    connect(url: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const { host, port } = this.parseUrl(url);
+            this.client = net.createConnection(port, host, () => {
+                resolve(`connected to in-memory db at inmemory://${host}:${port}`);
+            });
+            this.client.on('error', err => reject(err) );
+            this.client.on("end", () => { console.log("disconnected from in-memory db"); });
+        })
+       
     }
 
     send(message: Buffer): Promise<TResponse> {
@@ -63,10 +66,25 @@ class InMemoryDBClient {
         return response;
     }
 
-    async set(key: string, value: any) {
+    async set(key: string, value: string) {
         const buffer = this.protocol.encodeSet(key, value);
         const response = await this.send(buffer);
         return response;
+    }
+
+    async lPushBack(key: string, value: string[]){
+        const buffer = this.protocol.encodeLPushBack(key, value);
+        console.log(buffer);
+        const response = await this.send(buffer);
+        return response;
+    }
+
+    async lPopEnd(){
+
+    }
+
+    async lPopFront(){
+
     }
 }
 
