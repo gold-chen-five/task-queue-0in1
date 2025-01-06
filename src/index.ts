@@ -1,5 +1,5 @@
-import InMemoryDBServer from "./database/db-server";
+const buffer = Buffer.alloc(1);
 
-const PORT = 3000;
-const inMemoryDBServer = new InMemoryDBServer();
-inMemoryDBServer.start(PORT);
+buffer.writeUInt8(10, 0);
+
+console.log(buffer);
