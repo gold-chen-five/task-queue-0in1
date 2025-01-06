@@ -7,8 +7,7 @@ class InMemoryDBServer {
 
     constructor() {
         this.db = new InMemoryDB();
-        this.server = net.createServer(this.socketCommunication);
-        
+        this.server = net.createServer(this.socketCommunication);        
     }
 
     start(port: number) {
