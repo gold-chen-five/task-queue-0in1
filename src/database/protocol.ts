@@ -1,6 +1,7 @@
 import { IProtocol, TKeyValue, TMethod, EMethod, TResponse, ProtocolCode, TKeyValueList } from "./protocol.type"
 
 const ASCII_COMMA = 44;
+
 /**
  * @description this is and protocol class to handle between in-memory client and server (using custom binary protocal)
  * @example
@@ -59,19 +60,7 @@ class Protocol implements IProtocol {
 
     decodeLPushBack(buffer: Buffer): TKeyValueList {
         const { key, value } = this.decodeKeyValue(buffer);
-        const splitBuffers: Buffer[] = [];
-        let start = 0;
-
-        for (let i = 0; i < value.length; i++) {
-            if (value[i] === ASCII_COMMA) { // ASCII value of comma (',') is 44
-                splitBuffers.push(value.subarray(start, i));
-                start = i + 1;
-            }
-            if ((i === (value.length-1)) && splitBuffers.length === 0) {
-                splitBuffers.push(value.subarray(start, i+1));
-            }
-        }
-
+        const splitBuffers = this.decodeBufferArray(value);
         return { key, value: splitBuffers };
     }
 
@@ -84,28 +73,21 @@ class Protocol implements IProtocol {
      *  bytes(8~ (8+message length)): message value
      *  bytes((8+message length) ~ (8+message length+data length)): data value
     */
-    encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer {
+    encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[] ): Buffer {
+        const bdata = this.multiTypeToBuffer(data);
         const messageBuffer = Buffer.from(message, 'utf-8');
-        const dataLength = Array.isArray(data)
-            ? data.reduce((total, buf) => total + buf.length, 0)
-            : data?.length || 0;
+        const dataLength = bdata?.length || 0;
 
         const buffer = Buffer.alloc(2 + 2 + 4 + messageBuffer.length + dataLength);
         buffer.writeUInt16BE(code);
         buffer.writeUInt16BE(messageBuffer.length, 2);
-        buffer.writeUInt16BE(dataLength, 4);
+        buffer.writeUInt32BE(dataLength, 4);
         messageBuffer.copy(buffer, 8);
 
-        if(!data) return buffer;
+        if(!bdata) return buffer;
 
-        if(Array.isArray(data)){
-            const dataBuffer = Buffer.concat(data, dataLength);
-            dataBuffer.copy(buffer, (8 + messageBuffer.length));
-            return buffer;
-        } else {
-            data.copy(buffer, (8 + messageBuffer.length));
-            return buffer;
-        }
+        bdata.copy(buffer, (8 + messageBuffer.length));
+        return buffer;
     }
 
     decodeResponse(buffer: Buffer): TResponse {
@@ -115,6 +97,44 @@ class Protocol implements IProtocol {
         const message = buffer.subarray(8, 8 + messageLength).toString();
         const data = buffer.subarray(8 + messageLength, 8 + messageLength + dataLength);
         return { code, message, data };
+    }
+
+    encodeBufferArrayToBuffer(buffers: Buffer[]): Buffer {
+        const combined: Buffer[] = [];
+        buffers.forEach((buffer, index) => {
+            combined.push(buffer);
+            if(index < (buffers.length - 1)) {
+                const comma = Buffer.from([ASCII_COMMA]);
+                combined.push(comma);
+            }
+        })
+        const combinedLength = combined.reduce((total, buf) => total + buf.length, 0)
+        return Buffer.concat(combined, combinedLength);
+    }
+
+    decodeBufferArray(buffer: Buffer): Buffer[] {
+        const splitBuffers: Buffer[] = [];
+        let start = 0;
+
+        for (let i = 0; i < buffer.length; i++) {
+            if (buffer[i] === ASCII_COMMA) { // ASCII value of comma (',') is 44
+                splitBuffers.push(buffer.subarray(start, i));
+                start = i + 1;
+            }
+            if (i === (buffer.length-1)) {
+                splitBuffers.push(buffer.subarray(start, i+1));
+            }
+        }
+
+        return splitBuffers
+    }
+
+    multiTypeToBuffer(buffer: Buffer | Buffer[] | undefined): Buffer | undefined {
+        if(Array.isArray(buffer)){
+            return this.encodeBufferArrayToBuffer(buffer);
+        } else {
+            return buffer;
+        }
     }
     
     encodeMethodKey(method: EMethod, key: string): Buffer {
@@ -157,8 +177,6 @@ class Protocol implements IProtocol {
         const value = buffer.subarray(7 + keyLength, 7 + keyLength + valueLength);
         return { key, value };
     }
-
-
 }
 
 export default Protocol;

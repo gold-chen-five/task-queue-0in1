@@ -1,3 +1,4 @@
+
 export enum EMethod {
     SET = 1,
     GET = 2,
@@ -34,8 +35,9 @@ export interface IProtocol {
     decodeDelete(buffer: Buffer): string;
     encodeLPushBack(key: string, value: string[]): Buffer;
     decodeLPushBack(buffer: Buffer): TKeyValueList; 
-    encodeResponse(code: ProtocolCode, message: string, data?: Buffer): Buffer;
+    encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer;
     decodeResponse(buffer: Buffer): TResponse;
+    decodeBufferArray(buffer: Buffer): Buffer[];
 }
 
 export enum ProtocolCode {

@@ -9,9 +9,12 @@ async function main(){
     
         const now = new Date();
         //await client.set("test", "hello");
-        await client.lPushBack("test", ["hello"]);
+        const arr = [...Array(100).keys()].map(i => `hello${i}`);
+        await client.lPushBack("test", arr);
         const response = await client.get("test");
         console.log(response)
+        const data = client.toStringList(response.data);
+        console.log(data.length);
     
         const finish = new Date();
         console.log(finish.getTime() - now.getTime(), "ms");

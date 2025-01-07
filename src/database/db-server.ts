@@ -2,7 +2,6 @@ import net from 'net';
 import InMemoryDB from './in-memory-db';
 import { IProtocol, EMethod, ProtocolCode } from './protocol.type';
 
-
 class InMemoryDBServer {
     private server: net.Server;
     private db: InMemoryDB;
@@ -26,22 +25,27 @@ class InMemoryDBServer {
 
     socketCommunication(socket: net.Socket) {
         socket.on("data", (message: Buffer) => {
-            const method = this.protocol.decodeMethod(message);
-            if(!method)  return;
-
-            switch(method) {
-                case EMethod.SET:
-                    this.handleSet(socket, message);
-                    break;
-                case EMethod.GET:
-                    this.handleGet(socket, message);
-                    break;
-                case EMethod.DELETE:
-                    this.handleDelete(socket, message);
-                    break;
-                case EMethod.LIST_PUSH_BACK:
-                    this.handleListPushBack(socket, message);
-                    break;
+            try {
+                const method = this.protocol.decodeMethod(message);
+                if(!method)  return;
+    
+                switch(method) {
+                    case EMethod.SET:
+                        this.handleSet(socket, message);
+                        break;
+                    case EMethod.GET:
+                        this.handleGet(socket, message);
+                        break;
+                    case EMethod.DELETE:
+                        this.handleDelete(socket, message);
+                        break;
+                    case EMethod.LIST_PUSH_BACK:
+                        this.handleListPushBack(socket, message);
+                        break;
+                }
+            } catch(err: any) {
+                const response = this.protocol.encodeResponse(ProtocolCode.FAIL, err.message);
+                socket.write(response);
             }
         });
     }
@@ -56,7 +60,6 @@ class InMemoryDBServer {
     handleGet(socket: net.Socket, buffer: Buffer) {
         const key = this.protocol.decodeGet(buffer);
         const value = this.db.get(key);
-        console.log(value);
         const response = this.protocol.encodeResponse(ProtocolCode.OK, "Get success", value);
         socket.write(response);
     }

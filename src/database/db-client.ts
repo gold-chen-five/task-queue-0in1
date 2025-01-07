@@ -38,12 +38,12 @@ class InMemoryDBClient {
 
             const isSuccess = this.client.write(message);
             if (!isSuccess){
-                return reject(new Error('Failed to write message to server'));
+                return reject(new Error("Failed to write message to server"));
             }
 
             const timeout = setTimeout(() => { 
                 return reject(new Error("message time out"));
-            }, 5000);
+            }, 15000);
 
             this.client.once("data", (data) => {
                 clearTimeout(timeout);
@@ -55,9 +55,16 @@ class InMemoryDBClient {
     }
 
     close() {
-        if (this.client) {
-            this.client.end();
-        }
+        if (this.client) this.client.end();
+    }
+
+    toString(buffer: Buffer): string {
+        return buffer.toString();
+    }
+
+    toStringList(buffer: Buffer): string[] {
+        const buffers = this.protocol.decodeBufferArray(buffer);
+        return buffers.map(buffer => buffer.toString());
     }
 
     async get(key: string) {
@@ -74,7 +81,6 @@ class InMemoryDBClient {
 
     async lPushBack(key: string, value: string[]){
         const buffer = this.protocol.encodeLPushBack(key, value);
-        console.log(buffer);
         const response = await this.send(buffer);
         return response;
     }
