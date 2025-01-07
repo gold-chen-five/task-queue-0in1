@@ -1,6 +1,7 @@
 import { IProtocol, TKeyValue, TMethod, EMethod, TResponse, ProtocolCode, TKeyValueList } from "./protocol.type"
 
 const ASCII_COMMA = 44;
+const MAX_UINT32 = 0xFFFFFFFF; // 4,294,967,295 bytes;
 
 /**
  * @description this is and protocol class to handle between in-memory client and server (using custom binary protocal)
@@ -78,6 +79,10 @@ class Protocol implements IProtocol {
         const messageBuffer = Buffer.from(message, 'utf-8');
         const dataLength = bdata?.length || 0;
 
+        if (dataLength > MAX_UINT32) {
+            throw new Error(`Value size exceeds the maximum allowed size of 4GB.`);
+        }
+
         const buffer = Buffer.alloc(2 + 2 + 4 + messageBuffer.length + dataLength);
         buffer.writeUInt16BE(code);
         buffer.writeUInt16BE(messageBuffer.length, 2);
@@ -87,6 +92,7 @@ class Protocol implements IProtocol {
         if(!bdata) return buffer;
 
         bdata.copy(buffer, (8 + messageBuffer.length));
+
         return buffer;
     }
 
@@ -160,7 +166,12 @@ class Protocol implements IProtocol {
         const valueBuffer = Buffer.from(value, 'utf-8');
       
         const buffer = Buffer.alloc(1 + 2 + 4 + keyBuffer.length + valueBuffer.length);
-      
+        
+         // Check if the value is too big
+        if (valueBuffer.length > MAX_UINT32) {
+            throw new Error(`Value size exceeds the maximum allowed size of 4GB.`);
+        }
+
         buffer.writeUInt8(method, 0);
         buffer.writeUInt16BE(keyBuffer.length, 1);
         buffer.writeUInt32BE(valueBuffer.length, 3);
