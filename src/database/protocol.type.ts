@@ -39,6 +39,7 @@ export interface IProtocol {
     encodeLPushFront(key: string, value: string[]): Buffer;
     encodeLPopBack(key: string): Buffer;
     encodeLPopFront(key: string): Buffer;
+    decodeLPop(buffer: Buffer): string;
     decodeList(buffer: Buffer): TKeyValueList; 
     encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer;
     decodeResponse(buffer: Buffer): TResponse;

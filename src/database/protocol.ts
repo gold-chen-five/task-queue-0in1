@@ -111,7 +111,7 @@ class Protocol implements IProtocol {
         return this.encodeMethodKey(EMethod.LIST_POP_FRONT, key);
     }
 
-    decodePop(buffer: Buffer): string{
+    decodeLPop(buffer: Buffer): string{
         return this.decodeKey(buffer);
     }
 
@@ -120,7 +120,6 @@ class Protocol implements IProtocol {
         const splitBuffers = this.decodeBufferArray(value);
         return { key, value: splitBuffers };
     }
-
 
     /**
      *  @example

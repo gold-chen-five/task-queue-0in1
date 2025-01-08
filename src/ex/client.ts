@@ -14,7 +14,16 @@ async function main(){
         const response = await client.get("test");
         const data = client.parseResponseList(response);
         console.log(data);
-    
+
+        const resPop = await client.lPopFront("test");
+        const dataPop = client.parseResponseString(resPop);
+        console.log(dataPop)
+
+        const response2 = await client.get("test");
+        const data2 = client.parseResponseList(response2);
+        console.log(data2);
+
+
         const finish = new Date();
         console.log(finish.getTime() - now.getTime(), "ms");
     } catch(err) {
