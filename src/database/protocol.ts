@@ -5,32 +5,26 @@ const MAX_UINT32 = 0xFFFFFFFF; // 4,294,967,295 bytes;
 
 /**
  * @description this is and protocol class to handle between in-memory client and server (using custom binary protocal)
- * @example
- *  set:
- *  bytes(0): 1 -> set, 2 -> get, 3 -> delete, 4 -> push back, 5 -> push front  
- *  bytes(1~2): key length
- *  bytes(3~6): value length
- *  bytes(7 ~ (7 + key length)): key value
- *  bytes((7 + key length) ~ (7 + key length + values length)): value
- * 
- *  get:
- *  bytes(0): 1 -> set, 2 -> get, 3 -> delete 
- *  bytes(1~2): key length
- *  bytes(7 ~ (7 + key length)): key value
- * 
- *  response:
- *  bytes(0~1): code ex: 200 400
- *  bytes(2~3): message length
- *  bytes(4~7): data length
- *  bytes(8~ (8+message length)): message value
- *  bytes((8+message length) ~ (8+message length+data length)): data value
  */
 class Protocol implements IProtocol {
+    /**
+     * @param buffer buffer message
+     * @returns 1 -> set, 2 -> get, 3 -> delete, 4 -> push back, 5 -> push front  
+     */
     decodeMethod(buffer: Buffer): TMethod {
         const cmd = buffer.readUInt8(0);
         return cmd;
     }
 
+    /**
+     *  @example
+     *  set:
+     *  bytes(0): 1 -> set
+     *  bytes(1~2): key length
+     *  bytes(3~6): value length
+     *  bytes(7 ~ (7 + key length)): key value
+     *  bytes((7 + key length) ~ (7 + key length + values length)): value
+     */
     encodeSet(key: string, value: any): Buffer {
         return this.encodeMethodKeyValue(EMethod.SET, key, value);
     }
@@ -39,6 +33,13 @@ class Protocol implements IProtocol {
         return this.decodeKeyValue(buffer);
     }
 
+    /**
+     *  @example
+     *  get:
+     *  bytes(0): 2 -> get
+     *  bytes(1~2): key length
+     *  bytes(3 ~ (3 + key length)): key value
+     */
     encodeGet(key: string): Buffer {
        return this.encodeMethodKey(EMethod.GET, key);
     }
@@ -47,6 +48,13 @@ class Protocol implements IProtocol {
         return this.decodeKey(buffer);
     }
 
+    /**
+     *  @example
+     *  get:
+     *  bytes(0): 3 -> delete 
+     *  bytes(1~2): key length
+     *  bytes(3 ~ (3 + key length)): key value
+     */
     encodeDelete(key: string): Buffer {
         return this.encodeMethodKey(EMethod.DELETE, key);
     }
@@ -55,12 +63,56 @@ class Protocol implements IProtocol {
         return this.decodeKey(buffer);
     }
     
+    /**
+     *  @example
+     *  set:
+     *  bytes(0): 4 -> push back
+     *  bytes(1~2): key length
+     *  bytes(3~6): value length
+     *  bytes(7 ~ (7 + key length)): key value
+     *  bytes((7 + key length) ~ (7 + key length + values length)): value
+     */
     encodeLPushBack(key: string, value: string[]): Buffer {
         return this.encodeMethodKeyValue(EMethod.LIST_PUSH_BACK, key, value.toString());
     }
 
+    /**
+     *  @example
+     *  set:
+     *  bytes(0): 5 -> push front
+     *  bytes(1~2): key length
+     *  bytes(3~6): value length
+     *  bytes(7 ~ (7 + key length)): key value
+     *  bytes((7 + key length) ~ (7 + key length + values length)): value
+     */
     encodeLPushFront(key: string, value: string[]): Buffer {
         return this.encodeMethodKeyValue(EMethod.LIST_PUSH_FRONT, key, value.toString());
+    }
+
+    /**
+     *  @example
+     *  get:
+     *  bytes(0): 6 -> pop back
+     *  bytes(1~2): key length
+     *  bytes(3 ~ (3 + key length)): key value
+     */
+    encodeLPopBack(key: string): Buffer {
+        return this.encodeMethodKey(EMethod.LIST_POP_BACK, key);
+    }
+
+    /**
+     *  @example
+     *  get:
+     *  bytes(0): 7 -> pop front
+     *  bytes(1~2): key length
+     *  bytes(3 ~ (3 + key length)): key value
+     */
+    encodeLPopFront(key: string): Buffer {
+        return this.encodeMethodKey(EMethod.LIST_POP_FRONT, key);
+    }
+
+    decodePop(buffer: Buffer): string{
+        return this.decodeKey(buffer);
     }
 
     decodeList(buffer: Buffer): TKeyValueList {

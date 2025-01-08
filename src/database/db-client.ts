@@ -116,12 +116,16 @@ class InMemoryDBClient {
         return response;
     }
 
-    async lPopEnd(){
-
+    async lPopBack(key: string): Promise<TResponse>{
+        const buffer = this.protocol.encodeLPopBack(key);
+        const response = await this.send(buffer);
+        return response;
     }
 
-    async lPopFront(){
-
+    async lPopFront(key: string): Promise<TResponse>{
+        const buffer = this.protocol.encodeLPopFront(key);
+        const response = await this.send(buffer);
+        return response;
     }
 }
 

@@ -27,6 +27,17 @@ class InMemoryDB {
     (this.db[key] as Buffer[]).unshift(...value);
   }
 
+  listPopBack(key: string): Buffer | undefined {
+    if(!this.get(key)) return undefined;
+
+    return (this.db[key] as Buffer[]).pop();
+  }
+
+  listPopFront(key: string): Buffer | undefined {
+    if(!this.get(key)) return undefined;
+
+    return (this.db[key] as Buffer[]).shift();
+  }  
 }
 
 

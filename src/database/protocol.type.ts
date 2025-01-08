@@ -4,7 +4,9 @@ export enum EMethod {
     GET = 2,
     DELETE = 3,
     LIST_PUSH_BACK = 4,
-    LIST_PUSH_FRONT = 5
+    LIST_PUSH_FRONT = 5,
+    LIST_POP_BACK = 6,
+    LIST_POP_FRONT = 7
 }
 
 export type TMethod = EMethod | null;
@@ -35,6 +37,8 @@ export interface IProtocol {
     decodeDelete(buffer: Buffer): string;
     encodeLPushBack(key: string, value: string[]): Buffer;
     encodeLPushFront(key: string, value: string[]): Buffer;
+    encodeLPopBack(key: string): Buffer;
+    encodeLPopFront(key: string): Buffer;
     decodeList(buffer: Buffer): TKeyValueList; 
     encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer;
     decodeResponse(buffer: Buffer): TResponse;
