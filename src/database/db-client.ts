@@ -2,6 +2,10 @@ import net from "net"
 import { URL } from "url";
 import { IProtocol, TResponse } from "./protocol.type";
 
+type TParseResponse = Omit<TResponse, "data"> & {
+    data: string | string[];
+}
+
 class InMemoryDBClient {
     private client: net.Socket | undefined = undefined;
     private protocol: IProtocol;
@@ -58,13 +62,34 @@ class InMemoryDBClient {
         if (this.client) this.client.end();
     }
 
-    toString(buffer: Buffer): string {
-        return buffer.toString();
-    }
-
     toStringList(buffer: Buffer): string[] {
         const buffers = this.protocol.decodeBufferArray(buffer);
         return buffers.map(buffer => buffer.toString());
+    }
+
+    /**
+     * will change the response data to string not buffer
+     * 
+     * @example
+     * const response = await client.get("test");
+     * const data = client.parseResponseString(response);
+     */
+    parseResponseString(res: TResponse): TParseResponse{
+        return {...res, data: res.data.toString()};
+    }
+
+    /**
+     * will change the response data to string List not buffer List
+     * 
+     * @example
+     * const response = await client.get("test");
+     * const data = client.parseResponseList(response);
+     */
+    parseResponseList(res: TResponse): TParseResponse{
+        return {
+            ...res, 
+            data: this.toStringList(res.data)
+        }
     }
 
     async get(key: string) {
@@ -79,8 +104,14 @@ class InMemoryDBClient {
         return response;
     }
 
-    async lPushBack(key: string, value: string[]){
+    async lPushBack(key: string, value: string[]): Promise<TResponse> {
         const buffer = this.protocol.encodeLPushBack(key, value);
+        const response = await this.send(buffer);
+        return response;
+    }
+
+    async lPushFront(key: string, value: string[]): Promise<TResponse>{
+        const buffer = this.protocol.encodeLPushFront(key, value);
         const response = await this.send(buffer);
         return response;
     }

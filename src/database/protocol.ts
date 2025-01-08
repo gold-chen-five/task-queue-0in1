@@ -59,11 +59,16 @@ class Protocol implements IProtocol {
         return this.encodeMethodKeyValue(EMethod.LIST_PUSH_BACK, key, value.toString());
     }
 
-    decodeLPushBack(buffer: Buffer): TKeyValueList {
+    encodeLPushFront(key: string, value: string[]): Buffer {
+        return this.encodeMethodKeyValue(EMethod.LIST_PUSH_FRONT, key, value.toString());
+    }
+
+    decodeList(buffer: Buffer): TKeyValueList {
         const { key, value } = this.decodeKeyValue(buffer);
         const splitBuffers = this.decodeBufferArray(value);
         return { key, value: splitBuffers };
     }
+
 
     /**
      *  @example

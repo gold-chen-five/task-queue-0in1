@@ -12,8 +12,7 @@ async function main(){
         const arr = [...Array(10).keys()].map(i => `hello${i}`);
         await client.lPushBack("test", arr);
         const response = await client.get("test");
-        console.log(response)
-        const data = client.toStringList(response.data);
+        const data = client.parseResponseList(response);
         console.log(data);
     
         const finish = new Date();

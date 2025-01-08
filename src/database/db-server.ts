@@ -42,6 +42,9 @@ class InMemoryDBServer {
                     case EMethod.LIST_PUSH_BACK:
                         this.handleListPushBack(socket, message);
                         break;
+                    case EMethod.LIST_PUSH_FRONT:
+                        this.handleListPushFront(socket, message);
+                        break;
                 }
             } catch(err: any) {
                 const response = this.protocol.encodeResponse(ProtocolCode.FAIL, err.message);
@@ -72,9 +75,16 @@ class InMemoryDBServer {
     }
 
     handleListPushBack(socket: net.Socket, buffer: Buffer){
-        const { key, value } = this.protocol.decodeLPushBack(buffer);
+        const { key, value } = this.protocol.decodeList(buffer);
         this.db.listPushBack(key, value);
         const response = this.protocol.encodeResponse(ProtocolCode.OK, "List push back success");
+        socket.write(response);
+    }
+
+    handleListPushFront(socket: net.Socket, buffer: Buffer){
+        const { key, value } = this.protocol.decodeList(buffer);
+        this.db.listPushFront(key, value);
+        const response = this.protocol.encodeResponse(ProtocolCode.OK, "List push front success");
         socket.write(response);
     }
 

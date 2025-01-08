@@ -34,7 +34,8 @@ export interface IProtocol {
     encodeDelete(key: string): Buffer;
     decodeDelete(buffer: Buffer): string;
     encodeLPushBack(key: string, value: string[]): Buffer;
-    decodeLPushBack(buffer: Buffer): TKeyValueList; 
+    encodeLPushFront(key: string, value: string[]): Buffer;
+    decodeList(buffer: Buffer): TKeyValueList; 
     encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer;
     decodeResponse(buffer: Buffer): TResponse;
     decodeBufferArray(buffer: Buffer): Buffer[];
