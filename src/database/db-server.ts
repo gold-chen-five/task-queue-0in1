@@ -6,7 +6,7 @@ class InMemoryDBServer {
     private server: net.Server;
     private db: InMemoryDB;
     private protocol: IProtocol;
-
+    
     constructor(
         db: InMemoryDB, 
         protocol: IProtocol
