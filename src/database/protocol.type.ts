@@ -6,7 +6,9 @@ export enum EMethod {
     LIST_PUSH_BACK = 4,
     LIST_PUSH_FRONT = 5,
     LIST_POP_BACK = 6,
-    LIST_POP_FRONT = 7
+    LIST_POP_FRONT = 7,
+    PUBLISH = 8,
+    SUBSCRIBE = 9,
 }
 
 export type TMethod = EMethod | null;
@@ -44,9 +46,13 @@ export interface IProtocol {
     encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer;
     decodeResponse(buffer: Buffer): TResponse;
     decodeBufferArray(buffer: Buffer): Buffer[];
+    encodePublish(key: string): Buffer;
+    encodeSubscribe(key: string): Buffer;
+    decodeChannel(buffer: Buffer): string;
 }
 
 export enum ProtocolCode {
     OK = 200,
     FAIL = 400,
+    NOT_FOUND = 404,
 }

@@ -111,7 +111,7 @@ class Protocol implements IProtocol {
         return this.encodeMethodKey(EMethod.LIST_POP_FRONT, key);
     }
 
-    decodeLPop(buffer: Buffer): string{
+    decodeLPop(buffer: Buffer): string {
         return this.decodeKey(buffer);
     }
 
@@ -120,6 +120,7 @@ class Protocol implements IProtocol {
         const splitBuffers = this.decodeBufferArray(value);
         return { key, value: splitBuffers };
     }
+
 
     /**
      *  @example
@@ -243,6 +244,18 @@ class Protocol implements IProtocol {
         const key = buffer.subarray(7, 7 + keyLength).toString();
         const value = buffer.subarray(7 + keyLength, 7 + keyLength + valueLength);
         return { key, value };
+    }
+
+    encodePublish(key: string): Buffer {
+        return this.encodeMethodKey(EMethod.PUBLISH, key);
+    }
+
+    encodeSubscribe(key: string): Buffer {
+        return this.encodeMethodKey(EMethod.SUBSCRIBE, key);
+    }
+
+    decodeChannel(buffer: Buffer): string {
+        return this.decodeKey(buffer);
     }
 }
 

@@ -51,6 +51,11 @@ class InMemoryDBServer {
                     case EMethod.LIST_POP_FRONT:
                         this.handleListPopFront(socket, message);
                         break;
+                    case EMethod.PUBLISH:
+                        this.handlePublish(message);
+                        break;
+                    case EMethod.SUBSCRIBE:
+                        this.handleSubscribe(socket, message);
 
                 }
             } catch(err: any) {
@@ -106,6 +111,28 @@ class InMemoryDBServer {
         const key = this.protocol.decodeLPop(buffer);
         const popData = this.db.listPopFront(key);
         const response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop front success", popData);
+        socket.write(response);
+    }
+
+    handlePublish(socket:net.Socket, buffer: Buffer){
+        const key = this.protocol.decodeChannel(buffer);
+        const channel = this.db.getChannel(key);
+        if(!channel){
+            const response  = this.protocol.encodeResponse(ProtocolCode.NOT_FOUND, "Channel not found");
+            socket.write(response);
+            return;
+        }
+
+        channel.forEach(s => {
+            const response  = this.protocol.encodeResponse(ProtocolCode.OK, "Publisher send message");
+            s.write(response);
+        });
+    }
+
+    handleSubscribe(socket: net.Socket, buffer: Buffer){
+        const key = this.protocol.decodeChannel(buffer);
+        this.db.channelPush(key, socket);
+        const response = this.protocol.encodeResponse(ProtocolCode.OK, "Subscribe success");
         socket.write(response);
     }
 
