@@ -1,6 +1,6 @@
 import net from "net"
 import { URL } from "url";
-import { IProtocol, TResponse } from "./protocol.type";
+import { IProtocol, ProtocolCode, TResponse } from "./protocol.type";
 
 type TParseResponse = Omit<TResponse, "data"> & {
     data: string | string[];
@@ -145,6 +145,22 @@ class InMemoryDBClient {
         const response = await this.send(buffer);
         return response;
     }
+
+    listenChannel(topic: string, callback: () => void) {
+        if(!this.client) {
+            throw new Error("Not connected to any server");
+        }
+
+        this.client.on("data", (data) => {
+            const response = this.protocol.decodeResponse(data);
+            if(response.code !== ProtocolCode.SUBSCRIBE)  return;
+
+            const res = this.parseResponseString(response);
+            if(res.data as string !== topic)  return;
+
+            callback();
+        })
+    }   
 }
 
 export default InMemoryDBClient;

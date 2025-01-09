@@ -9,6 +9,7 @@ export enum EMethod {
     LIST_POP_FRONT = 7,
     PUBLISH = 8,
     SUBSCRIBE = 9,
+    LEAVER_CHANNLE = 10
 }
 
 export type TMethod = EMethod | null;
@@ -50,6 +51,7 @@ export interface IProtocol {
     encodeSubscribe(topic: string): Buffer;
     encodeLeaveChannel(topic: string): Buffer;
     decodeChannel(buffer: Buffer): string;
+    encodeStringToBuffer(data: string): Buffer;
 }
 
 export enum ProtocolCode {

@@ -127,7 +127,8 @@ class InMemoryDBServer {
         }
 
         channel.forEach(s => {
-            const response  = this.protocol.encodeResponse(ProtocolCode.SUBSCRIBE, "Publisher send message");
+            const data = this.protocol.encodeStringToBuffer(topic);
+            const response  = this.protocol.encodeResponse(ProtocolCode.SUBSCRIBE, "Publisher send message", data);
             s.write(response);
         });
 

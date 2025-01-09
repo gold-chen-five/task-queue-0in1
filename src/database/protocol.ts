@@ -261,6 +261,11 @@ class Protocol implements IProtocol {
     decodeChannel(buffer: Buffer): string {
         return this.decodeKey(buffer);
     }
+
+    encodeStringToBuffer(data: string): Buffer {
+        return Buffer.from(data, "utf-8");
+    }
+
 }
 
 export default Protocol;
