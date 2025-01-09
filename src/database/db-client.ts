@@ -127,6 +127,24 @@ class InMemoryDBClient {
         const response = await this.send(buffer);
         return response;
     }
+
+    async publish(topic: string): Promise<TResponse>{
+        const buffer = this.protocol.encodePublish(topic);
+        const response = await this.send(buffer);
+        return response;
+    }
+
+    async subscribe(topic: string): Promise<TResponse> {
+        const buffer = this.protocol.encodeSubscribe(topic);
+        const response = await this.send(buffer);
+        return response;
+    }
+
+    async subscriberLeave(topic: string): Promise<TResponse> {
+        const buffer = this.protocol.encodeLeaveChannel(topic);
+        const response = await this.send(buffer);
+        return response;
+    }
 }
 
 export default InMemoryDBClient;

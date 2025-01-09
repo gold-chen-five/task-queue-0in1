@@ -246,12 +246,16 @@ class Protocol implements IProtocol {
         return { key, value };
     }
 
-    encodePublish(key: string): Buffer {
-        return this.encodeMethodKey(EMethod.PUBLISH, key);
+    encodePublish(topic: string): Buffer {
+        return this.encodeMethodKey(EMethod.PUBLISH, topic);
     }
 
-    encodeSubscribe(key: string): Buffer {
-        return this.encodeMethodKey(EMethod.SUBSCRIBE, key);
+    encodeSubscribe(topic: string): Buffer {
+        return this.encodeMethodKey(EMethod.SUBSCRIBE, topic);
+    }
+
+    encodeLeaveChannel(topic: string): Buffer {
+        return this.encodeMethodKey(EMethod.LEAVER_CHANNLE, topic)    
     }
 
     decodeChannel(buffer: Buffer): string {

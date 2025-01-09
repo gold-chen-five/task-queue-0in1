@@ -46,8 +46,9 @@ export interface IProtocol {
     encodeResponse(code: ProtocolCode, message: string, data?: Buffer | Buffer[]): Buffer;
     decodeResponse(buffer: Buffer): TResponse;
     decodeBufferArray(buffer: Buffer): Buffer[];
-    encodePublish(key: string): Buffer;
-    encodeSubscribe(key: string): Buffer;
+    encodePublish(topic: string): Buffer;
+    encodeSubscribe(topic: string): Buffer;
+    encodeLeaveChannel(topic: string): Buffer;
     decodeChannel(buffer: Buffer): string;
 }
 

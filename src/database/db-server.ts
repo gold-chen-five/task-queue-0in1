@@ -56,7 +56,10 @@ class InMemoryDBServer {
                         break;
                     case EMethod.SUBSCRIBE:
                         this.handleSubscribe(socket, message);
-
+                        break;
+                    case EMethod.LEAVER_CHANNLE:
+                        this.handleSubscriberLeave(socket, message);
+                        break;    
                 }
             } catch(err: any) {
                 const response = this.protocol.encodeResponse(ProtocolCode.FAIL, err.message);
@@ -115,8 +118,8 @@ class InMemoryDBServer {
     }
 
     handlePublish(socket: net.Socket, buffer: Buffer){
-        const key = this.protocol.decodeChannel(buffer);
-        const channel = this.db.getChannel(key);
+        const topic = this.protocol.decodeChannel(buffer);
+        const channel = this.db.getChannel(topic);
         if(!channel){
             const response  = this.protocol.encodeResponse(ProtocolCode.NOT_FOUND, "Channel not found");
             socket.write(response);
@@ -133,10 +136,24 @@ class InMemoryDBServer {
     }
 
     handleSubscribe(socket: net.Socket, buffer: Buffer){
-        const key = this.protocol.decodeChannel(buffer);
-        this.db.channelPush(key, socket);
+        const topic = this.protocol.decodeChannel(buffer);
+        this.db.channelPush(topic, socket);
         const response = this.protocol.encodeResponse(ProtocolCode.OK, "Subscribe success");
         socket.write(response);
+    }
+
+    handleSubscriberLeave(socket: net.Socket, buffer: Buffer){
+        const topic = this.protocol.decodeChannel(buffer);
+        const subscirber = this.db.channelPop(topic, socket);
+        if(!subscirber) {
+            const response = this.protocol.encodeResponse(ProtocolCode.NOT_FOUND, "Subscirber not found");
+            socket.write(response);
+            return;
+        }
+
+        const response = this.protocol.encodeResponse(ProtocolCode.OK, "Leave success");
+        socket.write(response);
+        return;
     }
 
     handleErrors(socket: net.Socket) {
