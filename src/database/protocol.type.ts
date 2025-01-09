@@ -53,6 +53,7 @@ export interface IProtocol {
 
 export enum ProtocolCode {
     OK = 200,
+    SUBSCRIBE = 201,
     FAIL = 400,
     NOT_FOUND = 404,
 }

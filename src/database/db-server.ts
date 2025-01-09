@@ -52,7 +52,7 @@ class InMemoryDBServer {
                         this.handleListPopFront(socket, message);
                         break;
                     case EMethod.PUBLISH:
-                        this.handlePublish(message);
+                        this.handlePublish(socket, message);
                         break;
                     case EMethod.SUBSCRIBE:
                         this.handleSubscribe(socket, message);
@@ -114,7 +114,7 @@ class InMemoryDBServer {
         socket.write(response);
     }
 
-    handlePublish(socket:net.Socket, buffer: Buffer){
+    handlePublish(socket: net.Socket, buffer: Buffer){
         const key = this.protocol.decodeChannel(buffer);
         const channel = this.db.getChannel(key);
         if(!channel){
@@ -124,9 +124,12 @@ class InMemoryDBServer {
         }
 
         channel.forEach(s => {
-            const response  = this.protocol.encodeResponse(ProtocolCode.OK, "Publisher send message");
+            const response  = this.protocol.encodeResponse(ProtocolCode.SUBSCRIBE, "Publisher send message");
             s.write(response);
         });
+
+        const response  = this.protocol.encodeResponse(ProtocolCode.OK, "Publish to subscriber");
+        socket.write(response);
     }
 
     handleSubscribe(socket: net.Socket, buffer: Buffer){
