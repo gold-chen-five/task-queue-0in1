@@ -7,6 +7,8 @@
     "start": "tsc && node dist/index.js",
     "ex:server": "tsc && node dist/ex/server.js",
     "ex:client": "tsc && node dist/ex/client.js",
+    "ex:publisher": "tsc && node dist/ex/publisher.js",
+    "ex:subscriber": "tsc && node dist/ex/subscriber.js",
     "test": "jest"
   },
   "author": "",
@@ -17,5 +19,11 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.3"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }

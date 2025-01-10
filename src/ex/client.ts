@@ -1,3 +1,4 @@
+import 'module-alias/register';
 import allInOne from "@/all-in-one";
 
 async function main(){
