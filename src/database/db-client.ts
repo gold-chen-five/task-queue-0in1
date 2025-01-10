@@ -2,9 +2,14 @@ import net from "net"
 import { URL } from "url";
 import { IProtocol, ProtocolCode, TResponse } from "./protocol.type";
 
-type TParseResponse = Omit<TResponse, "data"> & {
-    data: string | string[];
+type TResString = Omit<TResponse, "data"> & {
+    data: string;
 }
+
+type TResStringList = Omit<TResponse, "data"> & {
+    data: string[];
+}
+
 
 class InMemoryDBClient {
     private client: net.Socket | undefined = undefined;
@@ -74,7 +79,7 @@ class InMemoryDBClient {
      * const response = await client.get("test");
      * const data = client.parseResponseString(response);
      */
-    parseResponseString(res: TResponse): TParseResponse{
+    parseResponseString(res: TResponse): TResString{
         return {...res, data: res.data.toString()};
     }
 
@@ -85,7 +90,7 @@ class InMemoryDBClient {
      * const response = await client.get("test");
      * const data = client.parseResponseList(response);
      */
-    parseResponseList(res: TResponse): TParseResponse{
+    parseResponseList(res: TResponse): TResStringList{
         return {
             ...res, 
             data: this.toStringList(res.data)
@@ -156,7 +161,7 @@ class InMemoryDBClient {
             if(response.code !== ProtocolCode.SUBSCRIBE)  return;
 
             const res = this.parseResponseString(response);
-            if(res.data as string !== topic)  return;
+            if(res.data !== topic)  return;
 
             callback();
         })

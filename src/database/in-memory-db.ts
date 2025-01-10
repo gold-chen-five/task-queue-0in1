@@ -3,70 +3,73 @@ import net from 'net';
 type Topic = string;
 
 class InMemoryDB {
-  private db: Record<string, any> = {};
-  private channels : Record<Topic, net.Socket[]> = {};
+  private db: Map<string, any> = new Map();
+  private channels: Map<Topic, net.Socket[]> = new Map();
 
   set(key: string, value: Buffer): void {
-    this.db[key] = value;
+    this.db.set(key, value);
   }
 
   get(key: string): any | undefined {
-    return this.db[key] || undefined;
+    return this.db.get(key);
   }
 
   delete(key: string): void {
-    delete this.db[key];
+    this.db.delete(key);
   }
 
   listPushBack(key: string, value: Buffer[]): void {
-    if(!this.get(key)) this.db[key] = [];
-    
-    value.forEach(buffer => {
-      (this.db[key] as Buffer[]).push(buffer);
-    })
+    if (!this.db.has(key)) this.db.set(key, []);
+
+    const list = this.db.get(key) as Buffer[];
+    list.push(...value);
   }
-  
+
   listPushFront(key: string, value: Buffer[]): void {
-    if(!this.get(key)) this.db[key] = [];
-    
-    (this.db[key] as Buffer[]).unshift(...value);
+    if (!this.db.has(key)) this.db.set(key, []);
+
+    const list = this.db.get(key) as Buffer[];
+    list.unshift(...value);
   }
 
   listPopBack(key: string): Buffer | undefined {
-    if(!this.get(key)) return undefined;
+    const list = this.db.get(key) as Buffer[] | undefined;
+    if (!list) return undefined;
 
-    return (this.db[key] as Buffer[]).pop();
+    return list.pop();
   }
 
   listPopFront(key: string): Buffer | undefined {
-    if(!this.get(key)) return undefined;
+    const list = this.db.get(key) as Buffer[] | undefined;
+    if (!list) return undefined;
 
-    return (this.db[key] as Buffer[]).shift();
+    return list.shift();
   }
 
   getChannel(key: string): net.Socket[] | undefined {
-    return this.channels[key] || undefined;
+    return this.channels.get(key);
   }
 
   channelPush(key: string, socket: net.Socket): void {
-    if(!this.getChannel(key)) this.channels[key] = [];
+    if (!this.channels.has(key)) this.channels.set(key, []);
 
-    this.channels[key].push(socket);
+    const channel = this.channels.get(key) as net.Socket[];
+    channel.push(socket);
   }
 
   channelPop(key: string, socket: net.Socket): net.Socket | undefined {
-    if(!this.getChannel(key)) return undefined;
+    if (!this.channels.has(key)) return undefined;
 
-    for(let index=0; index<this.channels[key].length; index++){
-      if(this.channels[key][index] === socket) {
-        return this.channels[key].splice(index, 1)[0];
+    const channel = this.channels.get(key) as net.Socket[];
+
+    for (let index = 0; index < channel.length; index++) {
+      if (channel[index] === socket) {
+        return channel.splice(index, 1)[0];
       }
     }
 
     return undefined;
   }
-
 }
-
 
 export default InMemoryDB;
