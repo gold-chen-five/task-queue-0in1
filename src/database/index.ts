@@ -1,7 +1,8 @@
-import InMemoryDB from "./database/in-memory-db";
-import InMemoryDBServer from "./database/db-server";
-import InMemoryDBClient from "./database/db-client";
-import Protocol from "./database/protocol";
+import InMemoryDB from "./in-memory-db";
+import InMemoryDBServer from "./db-server";
+import InMemoryDBClient from "./db-client";
+import Protocol from "./protocol";
+import { ProtocolCode } from "./protocol.type";
 
 function createServer(): InMemoryDBServer {
     const protocol = new Protocol();
@@ -16,5 +17,7 @@ function createClient(): InMemoryDBClient {
 }   
 
 export default { createServer, createClient };
+
+export { ProtocolCode, InMemoryDBClient, InMemoryDBServer };
 
 

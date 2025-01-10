@@ -1,10 +1,10 @@
 import 'module-alias/register';
-import allInOne from "@/all-in-one";
+import database from '@/database';
 
 async function main(){
     try {
         const URL = "inmemory://localhost:3000";
-        const client = allInOne.createClient();
+        const client = database.createClient();
         const success = await client.connect(URL);
         console.log(success)
     

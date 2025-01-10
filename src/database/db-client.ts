@@ -151,7 +151,7 @@ class InMemoryDBClient {
         return response;
     }
 
-    listenChannel(topic: string, callback: () => void) {
+    listenChannel(callback: (topic: string) => void) {
         if(!this.client) {
             throw new Error("Not connected to any server");
         }
@@ -161,9 +161,9 @@ class InMemoryDBClient {
             if(response.code !== ProtocolCode.SUBSCRIBE)  return;
 
             const res = this.parseResponseString(response);
-            if(res.data !== topic)  return;
+            const topic = res.data;
 
-            callback();
+            callback(topic);
         })
     }   
 }

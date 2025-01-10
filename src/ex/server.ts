@@ -1,6 +1,6 @@
 import 'module-alias/register';
-import allInOne from "@/all-in-one";
+import database from '@/database';
 
 const PORT = 3000;
-const db = allInOne.createServer();
+const db = database.createServer();
 db.start(PORT);

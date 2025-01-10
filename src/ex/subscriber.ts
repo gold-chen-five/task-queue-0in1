@@ -1,10 +1,8 @@
 import 'module-alias/register';
-import allInOne from "@/all-in-one";
-import { ProtocolCode } from "@/database/protocol.type";
+import database, { ProtocolCode } from '@/database';
 
 async function main(){
-    console.log("asd")
-    const client = allInOne.createClient();
+    const client = database.createClient();
 
     const URL = "inmemory://localhost:3000"
     await client.connect(URL);
@@ -14,7 +12,7 @@ async function main(){
     if(resposne.code !== ProtocolCode.OK) throw new Error("Sunscribe fail");
 
 
-    client.listenChannel("test", () => {
+    client.listenChannel(() => {
         console.log("get annotation")
     });
 }

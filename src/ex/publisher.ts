@@ -1,9 +1,8 @@
 import 'module-alias/register';
-import allInOne from "@/all-in-one";
-import { ProtocolCode } from "@/database/protocol.type";
+import database, { ProtocolCode } from '@/database';
 
 async function main(){
-    const client = allInOne.createClient();
+    const client = database.createClient();
 
     const URL = "inmemory://localhost:3000"
     await client.connect(URL);
