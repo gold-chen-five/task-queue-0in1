@@ -1,6 +1,6 @@
 import { IProtocol, TKeyValue, TMethod, EMethod, TResponse, ProtocolCode, TKeyValueList } from "./protocol.type"
 
-const ASCII_COMMA = 44;
+const ASCII_BACKSLASH = 92;
 const MAX_UINT32 = 0xFFFFFFFF; // 4,294,967,295 bytes;
 
 /**
@@ -73,7 +73,7 @@ class Protocol implements IProtocol {
      *  bytes((7 + key length) ~ (7 + key length + values length)): value
      */
     encodeLPushBack(key: string, value: string[]): Buffer {
-        return this.encodeMethodKeyValue(EMethod.LIST_PUSH_BACK, key, value.toString());
+        return this.encodeMethodKeyValue(EMethod.LIST_PUSH_BACK, key, value.join("\\"));
     }
 
     /**
@@ -86,7 +86,7 @@ class Protocol implements IProtocol {
      *  bytes((7 + key length) ~ (7 + key length + values length)): value
      */
     encodeLPushFront(key: string, value: string[]): Buffer {
-        return this.encodeMethodKeyValue(EMethod.LIST_PUSH_FRONT, key, value.toString());
+        return this.encodeMethodKeyValue(EMethod.LIST_PUSH_FRONT, key, value.join("\\"));
     }
 
     /**
@@ -167,7 +167,7 @@ class Protocol implements IProtocol {
         buffers.forEach((buffer, index) => {
             combined.push(buffer);
             if(index < (buffers.length - 1)) {
-                const comma = Buffer.from([ASCII_COMMA]);
+                const comma = Buffer.from([ASCII_BACKSLASH]);
                 combined.push(comma);
             }
         })
@@ -180,7 +180,7 @@ class Protocol implements IProtocol {
         let start = 0;
 
         for (let i = 0; i < buffer.length; i++) {
-            if (buffer[i] === ASCII_COMMA) { // ASCII value of comma (',') is 44
+            if (buffer[i] === ASCII_BACKSLASH) { // ASCII value of backslsh('\') is 92
                 splitBuffers.push(buffer.subarray(start, i));
                 start = i + 1;
             }
