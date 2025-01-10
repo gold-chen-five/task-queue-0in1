@@ -1,4 +1,4 @@
-import allInOne from "../all-in-one";
+import allInOne from "@/all-in-one";
 
 async function main(){
     try {

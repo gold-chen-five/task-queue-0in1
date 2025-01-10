@@ -3,14 +3,14 @@ import net from 'net';
 type Topic = string;
 
 class InMemoryDB {
-  private db: Map<string, any> = new Map();
+  private db: Map<string, Buffer | Buffer[]> = new Map();
   private channels: Map<Topic, net.Socket[]> = new Map();
 
   set(key: string, value: Buffer): void {
     this.db.set(key, value);
   }
 
-  get(key: string): any | undefined {
+  get(key: string): Buffer | Buffer[] | undefined {
     return this.db.get(key);
   }
 
@@ -29,7 +29,7 @@ class InMemoryDB {
     if (!this.db.has(key)) this.db.set(key, []);
 
     const list = this.db.get(key) as Buffer[];
-    list.unshift(...value);
+    this.db.set(key, value.reverse().concat(list));
   }
 
   listPopBack(key: string): Buffer | undefined {
