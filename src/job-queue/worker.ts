@@ -1,5 +1,4 @@
 
-import database from "@/database";
 import { InMemoryDBClient, ProtocolCode } from "@/database";
 import { Job } from "./job-queue";
 
@@ -33,8 +32,4 @@ class Worker {
     }
 }
 
-export async function createWorker(dbUrl: string){
-    const client = database.createClient();
-    await client.connect(dbUrl);
-    return new Worker(client);
-}
+export default Worker;

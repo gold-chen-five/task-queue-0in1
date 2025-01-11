@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from 'uuid';
-import database from '@/database';
 import { InMemoryDBClient, ProtocolCode } from "@/database";
 
 export type Job<T> = {
@@ -33,8 +32,4 @@ class JobQueue {
     }
 }
 
-export async function createJobQueue(dbUrl: string){
-    const client = database.createClient();
-    await client.connect(dbUrl);
-    return new JobQueue(client);
-}
+export default JobQueue;

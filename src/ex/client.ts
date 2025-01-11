@@ -1,35 +1,35 @@
 import 'module-alias/register';
-import database from '@/database';
+import { createJobQueue, createWorker } from '@/job-queue';
 
-async function main(){
-    try {
-        const URL = "inmemory://localhost:3000";
-        const client = database.createClient();
-        const success = await client.connect(URL);
-        console.log(success)
-    
-        const now = new Date();
-        //await client.set("test", "hello");
-        const arr = [...Array(10).keys()].map(i => `hello${i}`);
-        await client.lPushBack("test", arr);
-        const response = await client.get("test");
-        const data = client.parseResponseList(response);
-        console.log(data);
+const URL = "inmemory://localhost:3000"
 
-        const resPop = await client.lPopFront("test");
-        const dataPop = client.parseResponseString(resPop);
-        console.log(dataPop)
-
-        const response2 = await client.get("test");
-        const data2 = client.parseResponseList(response2);
-        console.log(data2);
-
-
-        const finish = new Date();
-        console.log(finish.getTime() - now.getTime(), "ms");
-    } catch(err) {
-        console.log(err)
-    }
+type Payload = {
+    name: string,
+    age: number
 }
 
-main();
+async function main() {
+    const jobQueue = await createJobQueue(URL);
+    const worker = await createWorker(URL);
+    
+    const topic = "test"
+    worker.process<Payload>(topic, async(job) => {
+        console.log(job.payload.name);
+        console.log(job);
+    });
+
+    const payload: Payload ={
+        name: "jonas",
+        age: 27
+    };
+
+    const job = await jobQueue.add(topic, payload);
+    
+    
+}
+
+main()
+    .then(() => {})
+    .catch((err: any) => {
+        console.log(err.message);
+    })

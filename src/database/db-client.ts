@@ -28,14 +28,14 @@ class InMemoryDBClient {
     }
 
     connect(url: string): Promise<string> {
+        const { host, port } = this.parseUrl(url);
         return new Promise((resolve, reject) => {
-            const { host, port } = this.parseUrl(url);
             this.client = net.createConnection(port, host, () => {
                 resolve(`connected to in-memory db at inmemory://${host}:${port}`);
             });
             this.client.on('error', err => reject(err) );
             this.client.on("end", () => { console.log("disconnected from in-memory db"); });
-        })
+    })
        
     }
 
