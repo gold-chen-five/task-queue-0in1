@@ -8,7 +8,13 @@ class Worker {
         this.dbClient = dbClient;
     }
 
-    process(){
-        this.dbClient.subscribe();
+    
+    async process(topic: string){
+        const response = await this.dbClient.subscribe(topic);
+        if(response.code !== ProtocolCode.OK) throw new Error(response.message);
+
+        this.dbClient.listenChannel((ct: string) => {
+            
+        });
     }
 }
