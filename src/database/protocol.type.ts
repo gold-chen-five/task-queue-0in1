@@ -58,5 +58,6 @@ export enum ProtocolCode {
     OK = 200,
     SUBSCRIBE = 201,
     FAIL = 400,
+    List_IS_EMPTY = 401,
     NOT_FOUND = 404,
 }

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import database from '@/database';
 import { InMemoryDBClient, ProtocolCode } from "@/database";
 
-type Job<T> = {
+export type Job<T> = {
     id: string;
     payload: T;
 };

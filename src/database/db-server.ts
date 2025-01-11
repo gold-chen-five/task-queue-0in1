@@ -106,14 +106,26 @@ class InMemoryDBServer {
     handleListPopBack(socket: net.Socket, buffer: Buffer){
         const key = this.protocol.decodeLPop(buffer);
         const popData = this.db.listPopBack(key);
-        const response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop back success", popData);
+
+        let response;
+        if(popData){
+            response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop back success", popData);
+        } else {
+            response  = this.protocol.encodeResponse(ProtocolCode.List_IS_EMPTY, "List is empty", popData);
+        }
+        
         socket.write(response);
     }
 
     handleListPopFront(socket: net.Socket, buffer: Buffer){
         const key = this.protocol.decodeLPop(buffer);
         const popData = this.db.listPopFront(key);
-        const response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop front success", popData);
+        let response;
+        if(popData){
+            response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop back success", popData);
+        } else {
+            response  = this.protocol.encodeResponse(ProtocolCode.List_IS_EMPTY, "List is empty", popData);
+        }
         socket.write(response);
     }
 
