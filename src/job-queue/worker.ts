@@ -29,7 +29,7 @@ class Worker {
         if(response.code === ProtocolCode.LIST_IS_EMPTY)  return;
         if(response.code !== ProtocolCode.OK) throw new Error(`Fail to pop job: ${response.message}`);
 
-        const res = response.toString();
+        const res = this.dbClient.parseResponseString(response);
         const job = JSON.parse(res.data);
         const processor = this.processes.get(topic)!;
         await processor(job);

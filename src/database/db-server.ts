@@ -111,7 +111,7 @@ class InMemoryDBServer {
         if(popData){
             response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop back success", popData);
         } else {
-            response  = this.protocol.encodeResponse(ProtocolCode.List_IS_EMPTY, "List is empty", popData);
+            response  = this.protocol.encodeResponse(ProtocolCode.LIST_IS_EMPTY, "List is empty", popData);
         }
         
         socket.write(response);
@@ -124,7 +124,7 @@ class InMemoryDBServer {
         if(popData){
             response  = this.protocol.encodeResponse(ProtocolCode.OK, "List pop back success", popData);
         } else {
-            response  = this.protocol.encodeResponse(ProtocolCode.List_IS_EMPTY, "List is empty", popData);
+            response  = this.protocol.encodeResponse(ProtocolCode.LIST_IS_EMPTY, "List is empty", popData);
         }
         socket.write(response);
     }

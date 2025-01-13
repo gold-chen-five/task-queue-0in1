@@ -13,7 +13,7 @@ async function main() {
     const worker = await createWorker(URL);
     
     const topic = "test"
-    worker.process<Payload>(topic, async(job) => {
+    worker.register<Payload>(topic, async(job) => {
         console.log(job.payload.name);
         console.log(job);
     });
