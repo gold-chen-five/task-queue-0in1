@@ -2,33 +2,45 @@
 import { InMemoryDBClient, ProtocolCode } from "@/database";
 import { Job } from "./job-queue";
 
+type JobProcessor<T> = (job: Job<T>) => Promise<void>;
+
 class Worker {
     private dbClient: InMemoryDBClient;
-    private processes: Record<string, (job: any) => Promise<void>> = {};
+    private processes: Map<string, JobProcessor<any>> = new Map();
 
     constructor(dbClient: InMemoryDBClient){
         this.dbClient = dbClient;
+        this.setupChanelListener();
+    }
+
+    private setupChanelListener(){
         this.dbClient.listenChannel(async (topic: string) => {
-            if(!this.processes[topic]) throw new Error("no process");
-            this.work(topic);
+            try{
+                if(!this.processes.has(topic)) throw new Error(`No processor registered for topic: ${topic}`);
+                this.process(topic);
+            } catch(err: any) {
+                console.error(err.message);
+            }
         });
     }
-    
-    private async work(topic: string){
+
+    private async process(topic: string){
         const response = await this.dbClient.lPopFront(topic);
-        if(response.code === ProtocolCode.List_IS_EMPTY)  return;
+        if(response.code === ProtocolCode.LIST_IS_EMPTY)  return;
+        if(response.code !== ProtocolCode.OK) throw new Error(`Fail to pop job: ${response.message}`);
 
-        const res = this.dbClient.parseResponseString(response);
+        const res = response.toString();
         const job = JSON.parse(res.data);
-        await this.processes[topic](job);
+        const processor = this.processes.get(topic)!;
+        await processor(job);
 
-        this.work(topic);
+        this.process(topic);
     }
 
-    async process<T>(topic: string, callback: (job: Job<T>) => Promise<void>){
+    public async register<T>(topic: string, processor: JobProcessor<T>){
         const response = await this.dbClient.subscribe(topic);
         if(response.code !== ProtocolCode.OK) throw new Error(response.message);
-        this.processes[topic] = callback;
+        this.processes.set(topic, processor);
     }
 }
 
