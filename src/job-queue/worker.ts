@@ -7,6 +7,7 @@ type JobProcessor<T> = (job: Job<T>) => Promise<void>;
 class Worker {
     private dbClient: InMemoryDBClient;
     private processes: Map<string, JobProcessor<any>> = new Map();
+    private isProcessing = false;
 
     constructor(dbClient: InMemoryDBClient){
         this.dbClient = dbClient;
@@ -17,6 +18,7 @@ class Worker {
         this.dbClient.listenChannel(async (topic: string) => {
             try{
                 if(!this.processes.has(topic)) throw new Error(`No processor registered for topic: ${topic}`);
+                if(this.isProcessing) return;
                 this.process(topic);
             } catch(err: any) {
                 console.error(err.message);
@@ -25,6 +27,7 @@ class Worker {
     }
 
     private async process(topic: string){
+        this.isProcessing = true;
         const response = await this.dbClient.lPopFront(topic);
         if(response.code === ProtocolCode.LIST_IS_EMPTY)  return;
         if(response.code !== ProtocolCode.OK) throw new Error(`Fail to pop job: ${response.message}`);
@@ -35,6 +38,8 @@ class Worker {
         await processor(job);
 
         this.process(topic);
+
+        this.isProcessing = false;
     }
 
     public async register<T>(topic: string, processor: JobProcessor<T>){

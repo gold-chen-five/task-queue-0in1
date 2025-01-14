@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/index.js",
-    "ex:server": "tsc && node dist/ex/server.js",
-    "ex:client": "tsc && node dist/ex/client.js",
-    "ex:publisher": "tsc && node dist/ex/publisher.js",
-    "ex:subscriber": "tsc && node dist/ex/subscriber.js",
+    "start": "tsc --project tsconfig.build.json && node dist/index.js",
+    "ex:server": "tsc --project tsconfig.build.json && node dist/ex/server.js",
+    "ex:client": "tsc --project tsconfig.build.json && node dist/ex/client.js",
+    "ex:publisher": "tsc --project tsconfig.build.json && node dist/ex/publisher.js",
+    "ex:subscriber": "tsc --project tsconfig.build.json && node dist/ex/subscriber.js",
     "test": "jest"
   },
   "author": "",

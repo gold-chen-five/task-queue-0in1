@@ -10,7 +10,6 @@ type TResStringList = Omit<TResponse, "data"> & {
     data: string[];
 }
 
-
 class InMemoryDBClient {
     private client: net.Socket | undefined = undefined;
     private protocol: IProtocol;

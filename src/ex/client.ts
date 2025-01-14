@@ -14,8 +14,10 @@ async function main() {
     
     const topic = "test"
     worker.register<Payload>(topic, async(job) => {
-        console.log(job.payload.name);
-        console.log(job);
+        return new Promise((resolve, reject) => {
+            console.log(job)
+            setTimeout(() => resolve(), 2000);
+        });
     });
 
     const payload: Payload ={
@@ -24,7 +26,10 @@ async function main() {
     };
 
     const job = await jobQueue.add(topic, payload);
-    
+    jobQueue.add(topic, payload);
+    jobQueue.add(topic, payload);
+    jobQueue.add(topic, payload);
+    jobQueue.add(topic, payload);
     
 }
 
