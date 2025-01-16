@@ -23,6 +23,9 @@ class InMemoryDBClient {
         if (purl.protocol !== "inmemory:") {
             throw new Error("Invalid protocol, Only inmemory:// is supported.");
         }
+        if(!purl.hostname) throw new Error("Need to provide hostname");
+        if(!purl.port) throw new Error("Need to provide port");
+            
         return { host: purl.hostname, port: parseInt(purl.port) };
     }
 
@@ -34,8 +37,7 @@ class InMemoryDBClient {
             });
             this.client.on('error', err => reject(err) );
             this.client.on("end", () => { console.log("disconnected from in-memory db"); });
-    })
-       
+        })
     }
 
     send(message: Buffer): Promise<TResponse> {
